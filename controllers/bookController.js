@@ -1,32 +1,125 @@
-import { v4 as uuid } from 'uuid'
+import { PrismaClient } from '@prisma/client'
 
-export const bookController = (BOOKS) => {
-  const getBooks = (_request, response) => {
-    return response.json(BOOKS)
-  }
+const prisma = new PrismaClient()
 
-  const createBook = (request, response, next) => {
-    const newBook = request.body
-    const books = structuredClone(BOOKS)
+export const bookController = () => {
+  const getBooks = async (_request, response, next) => {
     try {
-      if(!newBook.title || !newBook.author) {
-        throw new Error('Title and author are required')
+      const books = await prisma.books.findMany()
+
+      const responseFormat = {
+        data: books,
+        message: 'Books retrieved successfully'
       }
-      books.push({
-        id: uuid(),
-        ...newBook
-      })
-      return response.status(200).json(books)
+
+      return response.status(200).json(responseFormat)
     } catch (error) {
       next(error)
+    } finally {
+      await prisma.$disconnect()
     }
   }
 
-  const getBookById = (request, response) => {}
+  const createBook = async (request, response, next) => {
+    const newBook = request.body
+
+    try {
+      const createdBook = await prisma.books.create({
+        data: newBook
+      })
+
+      const responseFormat = {
+        data: createdBook,
+        message: 'Book created successfully'
+      }
+
+      return response.status(201).json(responseFormat)
+    } catch (error) {
+      next(error)
+    } finally {
+      await prisma.$disconnect()
+    }
+  }
+
+  const getBookById = async (request, response, next) => {
+    const { id } = request.params
+    const bookId = Number(id)
+
+    try {
+      const book = await prisma.books.findUnique({
+        where: {
+          id: bookId
+        }
+      })
+
+      const responseFormat = {
+        data: book,
+        message: 'Book retrieved successfully'
+      }
+
+      return response.status(200).json(responseFormat)
+    } catch (error) {
+      next(error)
+    } finally {
+      await prisma.$disconnect()
+    }
+  }
+
+  const deleteById = async (request, response, next) => {
+    const { id } = request.params
+    const bookId = Number(id)
+
+    try {
+      const book = await prisma.books.delete({
+        where: {
+          id: bookId
+        }
+      })
+
+      const responseFormat = {
+        data: book,
+        message: 'Book deleted successfully'
+      }
+
+      return response.status(200).json(responseFormat)
+    } catch (error) {
+      next(error)
+    } finally {
+      await prisma.$disconnect()
+    }
+  }
+
+  const updateById = async (request, response, next) => {
+    const { id } = request.params
+    const bookId = Number(id)
+    const newBookData = request.body
+
+    try {
+      const book = await prisma.books.update({
+        where: {
+          id: bookId
+        },
+        data: newBookData
+      })
+
+      const responseFormat = {
+        data: book,
+        message: 'Book updated successfully'
+      }
+
+      return response.status(200).json(responseFormat)
+    } catch (error) {
+      next(error)
+    } finally {
+      await prisma.$disconnect()
+    }
+  }
 
   return {
     getBooks,
     createBook,
-    getBookById
+    getBookById,
+    deleteById,
+    updateById
   }
 }
