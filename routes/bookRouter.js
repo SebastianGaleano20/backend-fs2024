@@ -1,5 +1,7 @@
 import { Router } from 'express'
 import { bookController } from '../controllers/bookController.js'
+import { schemaValidator } from '../middlewares/validations.js'
+import { bodyBookSchema, updateBookSchema } from '../schemas/bookSchemas.js'
 
 export const bookRoutes = () => {
   const bookRouter = Router()
@@ -7,12 +9,12 @@ export const bookRoutes = () => {
 
   bookRouter.route('/books')
     .get(getBooks)
-    .post(createBook)
+    .post(schemaValidator(bodyBookSchema), createBook)
 
   bookRouter.route('/books/:id')
     .get(getBookById)
     .delete(deleteById)
-    .patch(updateById)
+    .patch(schemaValidator(updateBookSchema), updateById)
 
   return bookRouter
 }
