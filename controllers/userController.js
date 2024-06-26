@@ -1,4 +1,5 @@
 import httpStatus from '../helpers/httpStatus.js'
+import jwt from 'jsonwebtoken'
 
 import { encrypt, verified } from '../utils/bcrypt.js'
 
@@ -53,8 +54,13 @@ export const userController = () => {
         })
       }
 
+      //* AQUI TENGO QUE GENERAR EL TOKEN
+
+      const token = await generateToken({ email })
+
       return response.status(httpStatus.OK).json({
-        message: 'Login successful'
+        message: 'Login successful',
+        token
       })
     } catch (error) {
       next(error)
@@ -82,6 +88,14 @@ export const userController = () => {
     } finally {
       await prisma.$disconnect()
     }
+  }
+
+  const generateToken = async (data) => {
+    const token = await jwt.sign(data, process.env.SECRET_KEY, {
+      expiresIn: '1d'
+    })
+
+    return token
   }
 
   return {
