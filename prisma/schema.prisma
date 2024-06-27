@@ -14,24 +14,38 @@ datasource db {
 }
 
 model Books {
-  id          Int      @id @default(autoincrement())
-  title       String   @db.VarChar(80)
-  author      String   @db.VarChar(80)
-  description String   @db.Text
+  id          Int                  @id @default(autoincrement())
+  title       String               @db.VarChar(80)
+  author      String               @db.VarChar(80)
+  description String               @db.Text
   year        Int?
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  createdAt   DateTime             @default(now()) @map("created_at")
+  updatedAt   DateTime             @updatedAt @map("updated_at")
+  usersFav    UsersFavoriteBooks[]
 
   @@map("books")
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
+  id        Int                  @id @default(autoincrement())
+  email     String               @unique
   name      String?
   password  String
+  createdAt DateTime             @default(now()) @map("created_at")
+  updatedAt DateTime             @updatedAt @map("updated_at")
+  favBooks  UsersFavoriteBooks[]
+
+  @@map("users")
+}
+
+model UsersFavoriteBooks {
+  book      Books    @relation(fields: [bookId], references: [id])
+  bookId    Int      @map("book_id")
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int      @map("user_id")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@map("users")
+  @@id([bookId, userId])
+  @@map("users_favorite_books")
 }

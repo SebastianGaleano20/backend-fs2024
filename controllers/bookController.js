@@ -3,9 +3,17 @@ import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
 export const bookController = () => {
-  const getBooks = async (_request, response, next) => {
+  const getBooks = async (request, response, next) => {
+    const { query } = request
+
     try {
-      const books = await prisma.books.findMany()
+      const books = await prisma.books.findMany({
+        where: {
+          title: {
+            contains: query?.title ?? ''
+          }
+        }
+      })
 
       const responseFormat = {
         data: books,
