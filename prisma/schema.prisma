@@ -26,11 +26,17 @@ model Books {
   @@map("books")
 }
 
+enum Role {
+  USER
+  ADMIN
+}
+
 model User {
   id        Int                  @id @default(autoincrement())
   email     String               @unique
   name      String?
   password  String
+  role      Role                 @default(USER)
   createdAt DateTime             @default(now()) @map("created_at")
   updatedAt DateTime             @updatedAt @map("updated_at")
   favBooks  UsersFavoriteBooks[]
