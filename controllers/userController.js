@@ -1,6 +1,6 @@
 import httpStatus from '../helpers/httpStatus.js'
-import jwt from 'jsonwebtoken'
 
+import { generateToken, verifyToken } from '../utils/tokenManagement.js'
 import { encrypt, verified } from '../utils/bcrypt.js'
 
 import { PrismaClient } from '@prisma/client'
@@ -56,16 +56,41 @@ export const userController = () => {
 
       //* AQUI TENGO QUE GENERAR EL TOKEN
 
-      const token = await generateToken({ email })
+      const token = generateToken({data:{ email, role: user.role }})
+      const refreshToken = generateToken({
+        data:{ email, role: user.role },
+        isRefresh: true,
+        expiresIn: '7d'
+      })
+
 
       return response.status(httpStatus.OK).json({
         message: 'Login successful',
-        token
+        token,
+        refreshToken
       })
     } catch (error) {
       next(error)
     } finally {
       await prisma.$disconnect()
+    }
+  }
+
+  const refreshToken = async (request, response, next) => {
+    const { refreshToken } = request.body
+
+    try {
+      const { role, email } = verifyToken(refreshToken, true)
+      const token = generateToken({
+        data:{ email, role, message: 'fressssco' }
+      })
+
+      return response.status(httpStatus.OK).json({
+        success: true,
+        token
+      })
+    } catch (error) {
+      next(error)
     }
   }
 
@@ -90,17 +115,12 @@ export const userController = () => {
     }
   }
 
-  const generateToken = async (data) => {
-    const token = await jwt.sign(data, process.env.SECRET_KEY, {
-      expiresIn: '1d'
-    })
-
-    return token
-  }
+  
 
   return {
     register,
     login,
-    profile
+    profile,
+    refreshToken
   }
 }

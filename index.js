@@ -22,7 +22,7 @@ app.use(ejwt({
   secret: process.env.SECRET_KEY,
   algorithms: ['HS256'],
 }).unless({
-  path: ['/api/login', '/api/register'],
+  path: ['/api/login', '/api/register', '/api/refresh-token'],
 })
 )
 
