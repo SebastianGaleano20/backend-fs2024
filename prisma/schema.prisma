@@ -19,6 +19,7 @@ model Books {
   author      String               @db.VarChar(80)
   description String               @db.Text
   year        Int?
+  imageURL    String               @db.VarChar(255) @map("image_url")
   createdAt   DateTime             @default(now()) @map("created_at")
   updatedAt   DateTime             @updatedAt @map("updated_at")
   usersFav    UsersFavoriteBooks[]
