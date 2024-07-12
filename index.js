@@ -6,6 +6,7 @@ import { bookRoutes } from './routes/bookRouter.js'
 import bookFavRouter from './routes/bookFavRouter.js'
 import userRouter from './routes/userRouter.js'
 import errorHandler from './middlewares/errorHandler.js'
+import { upload } from './utils/uploadFiles.js'
 
 dotenv.config()
 
@@ -17,6 +18,16 @@ app.use(cors({
   origin: '*',
   methods: 'GET, POST, PUT, DELETE',
 }))
+
+app.post('/api/upload', (req, res) => {
+  upload(req, res, (err) => {
+    if (err) {
+      console.log(err)
+      return res.status(400).send('Upload failed')
+    }
+    res.status(200).json({ message: req.file })
+  })
+})
 
 app.use(ejwt({
   secret: process.env.SECRET_KEY,

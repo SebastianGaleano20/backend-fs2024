@@ -10,12 +10,12 @@ export const bookRoutes = () => {
 
   bookRouter.route('/books')
     .get(getBooks)
-    .post(isAdmin, schemaValidator(bodyBookSchema), createBook)
+    .post(isAdmin, createBook)
 
   bookRouter.route('/books/:id')
     .get(getBookById)
     .delete(deleteById)
-    .patch(schemaValidator(updateBookSchema), updateById)
+    .patch(updateById)
 
   return bookRouter
 }
